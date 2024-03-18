@@ -1,0 +1,13 @@
+.error{
+    color: darkred;
+}
+
+.sort-asc:after{
+    content: " ↑";
+    color: #015fbd;
+}
+
+.sort-desc:after{
+    content: " ↓";
+    color: #015fbd;
+}
