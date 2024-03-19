@@ -61,13 +61,13 @@ jobs:
         tags: |
           ghcr.io/rafal-pawlowski/firstaidpipeline:latest
 
-      - name: Deploy application on remote host
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.PROD_SSH_HOST }}
-          username: ${{ secrets.PROD_SSH_USERNAME }}
-          password: ${{ secrets.PROD_SSH_PASSWORD }}
-          script: ./deploy.sh
+    - name: Deploy application on remote host
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PROD_SSH_HOST }}
+        username: ${{ secrets.PROD_SSH_USERNAME }}
+        password: ${{ secrets.PROD_SSH_PASSWORD }}
+        script: ./deploy.sh
           
       env:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/postgres
