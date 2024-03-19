@@ -14,8 +14,10 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    permissions: 
+      contents: read
+      packages: write
 
     services:
       postgres:
@@ -28,14 +30,45 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+        
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      
+    - name: Login to docker
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        push: true
+        tags: |
+          ghcr.io/rafal-pawlowski/firstaidpipeline:latest
+
+      - name: Deploy application on remote host
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USERNAME }}
+          password: ${{ secrets.PROD_SSH_PASSWORD }}
+          script: ./deploy.sh
+          
       env:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/postgres
         SPRING_DATASOURCE_USERNAME: postgres
